@@ -10,7 +10,6 @@ class Data extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'hidroponik_id',
         'tanggal',
         'jumlah',

@@ -171,7 +171,6 @@ class DataController extends Controller
         }
 
         Data::create([
-            'user_id'       => Auth::id(),
             'hidroponik_id' => $hidroponik_id,
             'tanggal'       => $request->tanggal,
             'jumlah'        => $request->jumlah,
@@ -306,7 +305,6 @@ class DataController extends Controller
 
 
         $data->update([
-            'user_id'       => Auth::id(),
             'hidroponik_id' => $request->hidroponik_id,
             'tanggal'       => $request->tanggal,
             'jumlah'        => $request->jumlah,

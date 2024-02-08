@@ -43,7 +43,7 @@
                         <div>
                             <span class=" text-slate-500 font-semibold">
                                 Calculating PPM and Plant Condition By Fuzzy Mamdani Method System.<br>
-                                Register and Explore, we are commited to makeing <br>
+                                Register and Explore, we are commited to making <br>
                                 your Hydroponics System Grow.
                             </span>
                         </div>

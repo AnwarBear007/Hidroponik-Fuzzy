@@ -41,22 +41,32 @@ Route::middleware('splade')->group(function () {
         Route::get('/dashboard', function () {
 
             $hidroponik = Hidroponik::where('user_id', Auth::id())->get();
-            // $datas = DB::select('select * from data where data.user_id=?', [Auth::id()]);
             
             $hidroponiks = [];
             $hidroponiks_id = [];
             foreach ($hidroponik as $hidroponik) {
-                $hidroponiks[] = $hidroponik->code;
-                $hidroponiks_id[] = $hidroponik->id;
+                if ($hidroponik) {
+                    $hidroponiks[]      = $hidroponik->code;
+                    $hidroponiks_id[]   = $hidroponik->id;
+                }
             }
-
+            // dd($hidroponiks, $hidroponiks_id);
+            
+            $jumlahs =[];
+            $ppms =[];
             foreach ($hidroponiks_id as $hidroponiks_id) {
-                $jumlahs[] = Data::select('jumlah')->where('hidroponik_id', $hidroponiks_id)
-                          ->orderBy('id', 'desc')->first()->jumlah;
-                $ppms[] = Data::select('ppm')->where('hidroponik_id', $hidroponiks_id)
-                          ->orderBy('id', 'desc')->first()->ppm;
+                if ($hidroponiks_id) {
+                    $datas = Data::select('jumlah','ppm')->where('hidroponik_id', $hidroponiks_id)->orderBy('id', 'desc')->first();
+                    if ($datas) {
+                        $jumlahs[]  = $datas->jumlah;
+                        $ppms[]     = $datas->ppm;
+                    }else {
+                        $jumlahs[] = '';
+                        $ppms[] = '';
+                    }
+                }
             }
-            // dd($datas);
+            // dd($jumlahs, $ppms);
 
             return view('dashboard',[
                 'hidroponiks'   => $hidroponiks,
