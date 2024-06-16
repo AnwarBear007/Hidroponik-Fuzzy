@@ -24,7 +24,6 @@
                             </x-splade-form>
                         </x-splade-cell>
                     </x-splade-table>
-                    please
                 </div>
             </div>
         </div>
