@@ -4,6 +4,7 @@ use App\Models\Data;
 use App\Models\Hidroponik;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PpmController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\FuzzyController;
 use App\Http\Controllers\ProfileController;
@@ -94,8 +95,8 @@ Route::middleware('splade')->group(function () {
         Route::get('/{data}', [FuzzyController::class, 'show'])->name('show');
     });
 
-    // Route::resource('data', DataController::class)->middleware('auth');
     Route::resource('hidroponik', HidroponikController::class)->middleware('auth');
+    Route::resource('ppm', PpmController::class)->middleware('auth');
 
     require __DIR__.'/auth.php';
 });

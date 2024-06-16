@@ -20,14 +20,11 @@ class DataController extends Controller
     {
         $hidroponik_id  = $hidroponik->id;
         $ppm_id         = $request->input('ppm_id');
-        // dd($hidroponik_id, $ppm_id);
         
         $datas = Data::with('hidroponik')->where('hidroponik_id', $hidroponik->id)->get();
-        // dd($datas->all());
+
         return view('data.index', [
-            // 'datas' => Datas::class,
             'datas' => SpladeTable::for($datas)
-                // ->column('hidroponik.ppm.id', label:"Hidroponik")
                 ->column('tanggal', sortable:true)
                 ->column('jumlah', label:"Jumlah Tanaman")
                 ->column('volume', label:"Volume Air (Liter)")
@@ -42,7 +39,6 @@ class DataController extends Controller
                 noFilterOption: true,
                 noFilterOptionLabel: 'Semua')
                 ->defaultSort('tanggal', 'asc'),
-                // ->paginate(),
             'hidroponik_id' => $hidroponik_id,
             'ppm_id'        => $ppm_id
         ]);
@@ -55,7 +51,7 @@ class DataController extends Controller
     {
         $hidroponik_id  = $request->input('hidroponik_id');
         $ppm_id         = $request->input('ppm_id');
-        // dd($hidroponik_id, $ppm_id);
+
         return view('data.create',[
             'hidroponik_id' => $hidroponik_id,
             'ppm_id'        => $ppm_id
@@ -69,10 +65,9 @@ class DataController extends Controller
     {
         $hidroponik_id  = $request->input('hidroponik_id');
         $ppm_id         = $request->input('ppm_id');
-        // dd($hidroponik_id, $ppm_id);
         
         $larutan = $request->larutan * 1000; //Mengubah MiliLiter menjadi MiliGram
-        $ppm = $larutan / $request->volume; //Menghitung PPM
+        $ppm = $larutan / $request->volume;  //Menghitung PPM
 
         //-------------------deklarasi fuzzy
         $datas = Data::select('jumlah')->where('hidroponik_id', $hidroponik_id)->get();
@@ -83,14 +78,12 @@ class DataController extends Controller
         }else {
             $meanJ = $datas->sum('jumlah')/$datas->count('jumlah');
         }
-        // dd($maxJ,$minJ,$meanJ);
 
         $Datappm = Ppm::where('id', $ppm_id)->first()->toArray();
-        // dd($Datappm);
+
         $maxP = $Datappm['max'];
         $minP = $Datappm['min'];
         $meanP = ($maxP + $minP) / 2;
-        // dd($maxP, $minP, $meanP);
 
         //-------------------fuzzifikasi
         //Jumlah tanaman
@@ -192,7 +185,7 @@ class DataController extends Controller
     {
         $hidroponik_id  = $request->input('hidroponik_id');
         $ppm_id         = $request->input('ppm_id');
-        // dd($hidroponik_id, $ppm_id);
+
         return view('data.edit',[
             'datas'         => $data,
             'hidroponik_id' => $hidroponik_id,
@@ -207,7 +200,6 @@ class DataController extends Controller
     {
         $hidroponik_id  = $request->input('hidroponik_id');
         $ppm_id         = $request->input('ppm_id');
-        // dd($hidroponik_id, $ppm_id);
 
         $larutan = $request->larutan * 1000; //Mengubah MiliLiter menjadi MiliGram
         $ppm = $larutan / $request->volume; //Menghitung PPM
@@ -219,11 +211,10 @@ class DataController extends Controller
         $meanJ = $datas->sum('jumlah')/$datas->count('jumlah');
 
         $Datappm = Ppm::where('id', $ppm_id)->first()->toArray();
-        // dd($Datappm);
+
         $maxP = $Datappm['max'];
         $minP = $Datappm['min'];
         $meanP = ($maxP + $minP) / 2;
-        // dd($maxP, $minP, $meanP);
 
         //-------------------fuzzifikasi
         //Jumlah tanaman
@@ -317,7 +308,7 @@ class DataController extends Controller
         Toast::title('Data Hidroponik Telah Diupdate')->warning()->autoDismiss(3);
 
         return to_route('data.index', $request->hidroponik_id);
-        // return redirect()->back();
+
     }
 
     /**
@@ -329,7 +320,6 @@ class DataController extends Controller
 
         Toast::title('Data Hidroponik Telah Dihapus')->danger()->autoDismiss(3);
 
-        // return to_route('data.index');
         return redirect()->back();
     }
 }

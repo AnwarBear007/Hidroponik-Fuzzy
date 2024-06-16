@@ -15,14 +15,13 @@ class FuzzyController extends Controller
     {
         $hidroponik_id  = $request->input('hidroponik_id');
         $ppm_id         = $request->input('ppm_id');
-        // dd($hidroponik_id, $ppm_id);
         
         //----------------deklarasi
         $datas = Data::select('jumlah')->where('hidroponik_id', $hidroponik_id)->get();
-        // dd($datas);
+
         $maxJ = $datas->max('jumlah');
         $minJ = $datas->min('jumlah');
-        // dd($minJ,$maxJ);
+
         if ($datas->count('jumlah') == 0) {
             $meanJ = "";
             $lastJ = "";
@@ -30,17 +29,14 @@ class FuzzyController extends Controller
             $meanJ = $datas->sum('jumlah')/$datas->count('jumlah');
             $lastJ = Data::select('jumlah')->where('id', $data->id)->first()->jumlah;
         }
-        // dd($meanJ,$lastJ);
         
         $Datappm = Ppm::where('id', $ppm_id)->first()->toArray();
-        // dd($Datappm);
+
         $maxP = $Datappm['max'];
         $minP = $Datappm['min'];
         $meanP = ($maxP + $minP) / 2;
-        // dd($maxP,$minP,$meanP);
-        $lastP    = Data::select('ppm')->where('id', $data->id)->first()->ppm;
-        // dd($lastP);
 
+        $lastP    = Data::select('ppm')->where('id', $data->id)->first()->ppm;
 
         //------------------fuzzifikasi
         //Jumlah Tanaman
@@ -64,7 +60,6 @@ class FuzzyController extends Controller
             $JTSedang   = 0;
             $JTBanyak   = 1;
         }
-        // dd($JTSedikit, $JTSedang, $JTBanyak);
 
         //Nilai PPM
         if ($lastP < $minP) {
@@ -87,7 +82,6 @@ class FuzzyController extends Controller
             $NPSedang   = 0;
             $NPTinggi   = 1;
         }
-        // dd($NPRendah,$NPSedang,$NPTinggi);
 
         // -------------------- Inferensi
         // rule base
@@ -103,7 +97,7 @@ class FuzzyController extends Controller
 
         //-------------------- Defuzifikasi
         $KBuruk = 100;
-        $KBaik = 200;
+        $KBaik = 500;
         $KTengah = ($KBaik + $KBuruk) / 2;
 
         $BaseKBuruk = ($rule3 * $KBuruk) + ($rule4 * $KBuruk) + ($rule6 * $KBuruk) + ($rule7 * $KBuruk);

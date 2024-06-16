@@ -21,15 +21,12 @@ class HidroponikController extends Controller
         $hidroponiks = Hidroponik::where('user_id', Auth::id())->get();
 
         return view('hidroponik.index', [
-            // 'hidroponiks' => Hidroponiks::class,
             'hidroponiks' => SpladeTable::for($hidroponiks)
             ->withGlobalSearch(columns: ['hidroponik'])
-            // ->column('id', sortable: true)
             ->column('code')
             ->column('ppm.hidroponik', label:'Hidroponik')
             ->column('ppm.min')
             ->column('ppm.max')
-            // ->column('ppm.min')
             ->column('actions'),
         ]);
     }
@@ -52,7 +49,6 @@ class HidroponikController extends Controller
     public function store(Request $request)
     {
         $user_id = Auth::id();
-        // dd($user_id);
 
         Hidroponik::create([
             'code'          => $request->code,

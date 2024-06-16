@@ -17,11 +17,19 @@
                             {{ __('Dashboard') }}
                         </x-nav-link>
                     </div>
-                    <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                        <x-nav-link :href="route('hidroponik.index')" :active="request()->routeIs('hidroponik.index')">
-                            {{ __('Data Hidroponik') }}
-                        </x-nav-link>
-                    </div>
+                    @if (Auth::user()->role == 'user')
+                        <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                            <x-nav-link :href="route('hidroponik.index')" :active="request()->routeIs('hidroponik.index')">
+                                {{ __('Data Hidroponik') }}
+                            </x-nav-link>
+                        </div>
+                    @else
+                        <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                            <x-nav-link :href="route('ppm.index')" :active="request()->routeIs('ppm.index')">
+                                {{ __('Data PPM') }}
+                            </x-nav-link>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Settings Dropdown -->
