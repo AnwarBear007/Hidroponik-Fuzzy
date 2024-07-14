@@ -19,7 +19,7 @@
                     </div>
                     @if (Auth::user()->role == 'user')
                         <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                            <x-nav-link :href="route('hidroponik.index')" :active="request()->routeIs('hidroponik.index')">
+                            <x-nav-link :href="route('data.index')" :active="request()->routeIs('data.index')">
                                 {{ __('Data Hidroponik') }}
                             </x-nav-link>
                         </div>

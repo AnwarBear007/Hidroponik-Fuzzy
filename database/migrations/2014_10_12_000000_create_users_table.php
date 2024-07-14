@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('crop_amount')->default(0);
             $table->string('email')->unique();
             $table->integer('crop_id')->nullable();
             $table->enum('role', ['user', 'admin'])->default('user');

@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('data', function (Blueprint $table) {
             $table->id();
-            $table->integer('hidroponik_id');
-            $table->date('tanggal');
-            $table->integer('jumlah');
-            $table->float('volume');
-            $table->float('larutan');
-            $table->integer('ppm');
-            $table->enum('kondisi',['buruk', 'baik']);
+            $table->integer('hidroponik_id')->nullable();
+            $table->integer('crop_id');
+            $table->date('tanggal')->nullable();
+            $table->integer('jumlah')->nullable();
+            $table->float('volume')->nullable();
+            $table->float('larutan')->nullable();
+            $table->integer('ppm')->nullable();
+            $table->enum('kondisi', ['buruk', 'baik']);
             $table->timestamps();
         });
     }

@@ -11,6 +11,7 @@ class Data extends Model
 
     protected $fillable = [
         'hidroponik_id',
+        'crop_id',
         'tanggal',
         'jumlah',
         'volume',
@@ -19,7 +20,8 @@ class Data extends Model
         'kondisi',
     ];
 
-    public function hidroponik(){
+    public function hidroponik()
+    {
         return $this->belongsTo(Hidroponik::class, 'hidroponik_id');
     }
 }

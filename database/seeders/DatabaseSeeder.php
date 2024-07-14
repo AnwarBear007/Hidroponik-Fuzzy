@@ -35,6 +35,8 @@ class DatabaseSeeder extends Seeder
             'name'      => 'user',
             'email'     => 'user@example.com',
             'role'      => 'user',
+            'crop_id'      => 2,
+            'crop_amount'      => 100,
             'password'  => Hash::make('password')
         ]);
 
@@ -151,19 +153,19 @@ class DatabaseSeeder extends Seeder
             'min'           => 980,
             'max'           => 1260
         ]);
-        
+
         Ppm::create([
             'hidroponik'    => 'okra',
             'min'           => 1400,
             'max'           => 1680
         ]);
-        
+
         Ppm::create([
             'hidroponik'    => 'tomat',
             'min'           => 1400,
             'max'           => 3500
         ]);
-        
+
         Ppm::create([
             'hidroponik'    => 'terong',
             'min'           => 1750,

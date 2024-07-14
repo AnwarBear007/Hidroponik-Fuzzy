@@ -6,6 +6,7 @@ use App\Models\Ppm;
 use App\Models\Data;
 use App\Tables\Datas;
 use App\Models\Hidroponik;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use ProtoneMedia\Splade\SpladeTable;
@@ -16,30 +17,34 @@ class DataController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, Hidroponik $hidroponik)
+    // public function index(Request $request, Hidroponik $hidroponik)
+    public function index(Request $request)
     {
-        $hidroponik_id  = $hidroponik->id;
-        $ppm_id         = $request->input('ppm_id');
-        
-        $datas = Data::with('hidroponik')->where('hidroponik_id', $hidroponik->id)->get();
+        // $ppm_id         = $request->input('ppm_id');
+        $ppm_id         = Auth::user()->crop_id;
+
+        // $datas = Data::with('hidroponik')->where('hidroponik_id', $hidroponik->id)->get();
+        $datas = Data::where('crop_id', $ppm_id)->get();
 
         return view('data.index', [
             'datas' => SpladeTable::for($datas)
-                ->column('tanggal', sortable:true)
-                ->column('jumlah', label:"Jumlah Tanaman")
-                    // ->column('volume', label:"Volume Air (Liter)")
-                    // ->column('larutan', label:"Larutan AB Mix (MiliLiter)")
+                ->column('tanggal', sortable: true)
+                ->column('jumlah', label: "Jumlah Tanaman")
+                // ->column('volume', label:"Volume Air (Liter)")
+                // ->column('larutan', label:"Larutan AB Mix (MiliLiter)")
                 ->column('ppm')
                 ->column('kondisi')
                 ->column('actions', exportAs: false)
-                ->selectFilter('kondisi',[
-                    'baik' => 'Baik',
-                    'buruk' => 'Buruk',
-                ], 
-                noFilterOption: true,
-                noFilterOptionLabel: 'Semua')
+                ->selectFilter(
+                    'kondisi',
+                    [
+                        'baik' => 'Baik',
+                        'buruk' => 'Buruk',
+                    ],
+                    noFilterOption: true,
+                    noFilterOptionLabel: 'Semua'
+                )
                 ->defaultSort('tanggal', 'asc'),
-            'hidroponik_id' => $hidroponik_id,
             'ppm_id'        => $ppm_id
         ]);
     }
@@ -52,7 +57,7 @@ class DataController extends Controller
         $hidroponik_id  = $request->input('hidroponik_id');
         $ppm_id         = $request->input('ppm_id');
 
-        return view('data.create',[
+        return view('data.create', [
             'hidroponik_id' => $hidroponik_id,
             'ppm_id'        => $ppm_id
         ]);
@@ -66,18 +71,27 @@ class DataController extends Controller
         // dd($request->all());
         $hidroponik_id  = $request->input('hidroponik_id');
         $ppm_id         = $request->input('ppm_id');
-        
-        $larutan = $request->larutan * 1000; //Mengubah MiliLiter menjadi MiliGram
-        $ppm = $larutan / $request->volume;  //Menghitung PPM
+        // $larutan = $request->larutan * 1000; //Mengubah MiliLiter menjadi MiliGram
+        // $ppm =  $larutan / $request->volume;
+        // $ppm =  900;
+
+        $user = User::where('email', 'user@example.com')->first();
+        $ppm_id = $user?->crop_id;
+        $ppm =  $request->ppm ?? null;
+        $request['jumlah'] =  $user->crop_amount; //Menghitung PPM
+
+        if (empty($ppm)) {
+            return;
+        }
 
         //-------------------deklarasi fuzzy
-        $datas = Data::select('jumlah')->where('hidroponik_id', $hidroponik_id)->get();
+        $datas = Data::select('jumlah')->where('crop_id', $ppm_id)->get();
         $maxJ = $datas->max('jumlah');
         $minJ = $datas->min('jumlah');
         if ($datas->count('jumlah') == 0) {
             $meanJ = "";
-        }else {
-            $meanJ = $datas->sum('jumlah')/$datas->count('jumlah');
+        } else {
+            $meanJ = $datas->sum('jumlah') / $datas->count('jumlah');
         }
 
         $Datappm = Ppm::where('id', $ppm_id)->first()->toArray();
@@ -92,39 +106,34 @@ class DataController extends Controller
             $JTSedikit  = 1;
             $JTSedang   = 0;
             $JTBanyak   = 0;
-        }
-        else if ($request->jumlah >= $minJ && $request->jumlah < $meanJ) {
+        } else if ($request->jumlah >= $minJ && $request->jumlah < $meanJ) {
             $JTSedikit  = ($meanJ - $request->jumlah)     /   ($meanJ - $minJ);
             $JTSedang   = ($request->jumlah - $minJ)    /   ($meanJ - $minJ);
             $JTBanyak   = 0;
-        }
-        else if ($request->jumlah >= $meanJ && $request->jumlah < $maxJ) {
+        } else if ($request->jumlah >= $meanJ && $request->jumlah < $maxJ) {
             $JTSedikit  = 0;
             $JTSedang   = ($maxJ - $request->jumlah)    /   ($maxJ - $meanJ);
             $JTBanyak   = ($request->jumlah - $meanJ)    /   ($maxJ - $meanJ);
-        }
-        else if ($request->jumlah >= $maxJ) {
+        } else if ($request->jumlah >= $maxJ) {
             $JTSedikit  = 0;
             $JTSedang   = 0;
             $JTBanyak   = 1;
         }
+
         //Nilai PPM
         if ($ppm < $minP) {
             $NPRendah   = 1;
             $NPSedang   = 0;
             $NPTinggi   = 0;
-        }
-        else if ($ppm >= $minP && $ppm < $meanP) {
+        } else if ($ppm >= $minP && $ppm < $meanP) {
             $NPRendah   = ($meanP - $ppm)     /   ($meanP - $minP);
             $NPSedang   = ($ppm - $minP)    /   ($meanP - $minP);
             $NPTinggi   = 0;
-        }
-        else if ($ppm >= $meanP && $ppm < $maxP) {
+        } else if ($ppm >= $meanP && $ppm < $maxP) {
             $NPRendah   = 0;
             $NPSedang   = ($maxP - $ppm)    /   ($maxP - $meanP);
             $NPTinggi   = ($ppm - $meanP)    /   ($maxP - $meanP);
-        }
-        else if ($ppm >= $maxP) {
+        } else if ($ppm >= $maxP) {
             $NPRendah  = 0;
             $NPSedang   = 0;
             $NPTinggi   = 1;
@@ -132,15 +141,15 @@ class DataController extends Controller
 
         // -------------------- Inferensi
         // rule base
-        $rule1 = min($JTSedikit,$NPRendah); //KBaik
-        $rule2 = min($JTSedikit,$NPSedang); //KBaik
-        $rule3 = min($JTSedikit,$NPTinggi); //KBuruk
-        $rule4 = min($JTSedang,$NPRendah); //KBuruk
-        $rule5 = min($JTSedang,$NPSedang); //KBaik
-        $rule6 = min($JTSedang,$NPTinggi); //KBuruk
-        $rule7 = min($JTBanyak,$NPRendah); //KBuruk
-        $rule8 = min($JTBanyak,$NPSedang); //KBaik
-        $rule9 = min($JTBanyak,$NPTinggi); //KBaik
+        $rule1 = min($JTSedikit, $NPRendah); //KBaik
+        $rule2 = min($JTSedikit, $NPSedang); //KBaik
+        $rule3 = min($JTSedikit, $NPTinggi); //KBuruk
+        $rule4 = min($JTSedang, $NPRendah); //KBuruk
+        $rule5 = min($JTSedang, $NPSedang); //KBaik
+        $rule6 = min($JTSedang, $NPTinggi); //KBuruk
+        $rule7 = min($JTBanyak, $NPRendah); //KBuruk
+        $rule8 = min($JTBanyak, $NPSedang); //KBaik
+        $rule9 = min($JTBanyak, $NPTinggi); //KBaik
 
         //-------------------- Defuzifikasi
         $KBuruk = 100;
@@ -159,14 +168,25 @@ class DataController extends Controller
 
         if ($output <= $KTengah) {
             $Kondisi = 'buruk';
-        }
-        elseif($output > $KTengah){
+        } elseif ($output > $KTengah) {
             $Kondisi =  'baik';
         }
 
+        // dd([
+        //     'hidroponik_id' => $hidroponik_id,
+        //     'tanggal'       => $request->tanggal,
+        //     'jumlah'        => $request->jumlah,
+        //     'volume'        => $request->volume,
+        //     'larutan'       => $request->larutan,
+        //     'ppm'           => $ppm,
+        //     'kondisi'       => $Kondisi
+        // ]);
+
         Data::create([
+            'tanggal' => now()->format('Y-m-d'),
             'hidroponik_id' => $hidroponik_id,
-            'tanggal'       => $request->tanggal,
+            'crop_id' => $ppm_id,
+            // 'tanggal'       => $request->tanggal,
             'jumlah'        => $request->jumlah,
             'volume'        => $request->volume,
             'larutan'       => $request->larutan,
@@ -174,9 +194,11 @@ class DataController extends Controller
             'kondisi'       => $Kondisi
         ]);
 
-        Toast::title('Data Hidroponik Telah Ditambah')->autoDismiss(3);
+        // Toast::title('Data Hidroponik Telah Ditambah')->autoDismiss(3);
 
-        return to_route('data.index', [$hidroponik_id, 'ppm_id' => $ppm_id]);
+        return response()->json([
+            'message' => 'success'
+        ], 201);
     }
 
     /**
@@ -187,7 +209,7 @@ class DataController extends Controller
         $hidroponik_id  = $request->input('hidroponik_id');
         $ppm_id         = $request->input('ppm_id');
 
-        return view('data.edit',[
+        return view('data.edit', [
             'datas'         => $data,
             'hidroponik_id' => $hidroponik_id,
             'ppm_id'        => $ppm_id
@@ -209,7 +231,7 @@ class DataController extends Controller
         $datas = Data::where('hidroponik_id', $hidroponik_id)->get();
         $maxJ = $datas->max('jumlah');
         $minJ = $datas->min('jumlah');
-        $meanJ = $datas->sum('jumlah')/$datas->count('jumlah');
+        $meanJ = $datas->sum('jumlah') / $datas->count('jumlah');
 
         $Datappm = Ppm::where('id', $ppm_id)->first()->toArray();
 
@@ -223,18 +245,15 @@ class DataController extends Controller
             $JTSedikit  = 1;
             $JTSedang   = 0;
             $JTBanyak   = 0;
-        }
-        else if ($request->jumlah >= $minJ && $request->jumlah < $meanJ) {
+        } else if ($request->jumlah >= $minJ && $request->jumlah < $meanJ) {
             $JTSedikit  = ($meanJ - $request->jumlah)     /   ($meanJ - $minJ);
             $JTSedang   = ($request->jumlah - $minJ)    /   ($meanJ - $minJ);
             $JTBanyak   = 0;
-        }
-        else if ($request->jumlah >= $meanJ && $request->jumlah < $maxJ) {
+        } else if ($request->jumlah >= $meanJ && $request->jumlah < $maxJ) {
             $JTSedikit  = 0;
             $JTSedang   = ($maxJ - $request->jumlah)    /   ($maxJ - $meanJ);
             $JTBanyak   = ($request->jumlah - $meanJ)    /   ($maxJ - $meanJ);
-        }
-        else if ($request->jumlah >= $maxJ) {
+        } else if ($request->jumlah >= $maxJ) {
             $JTSedikit  = 0;
             $JTSedang   = 0;
             $JTBanyak   = 1;
@@ -244,18 +263,15 @@ class DataController extends Controller
             $NPRendah   = 1;
             $NPSedang   = 0;
             $NPTinggi   = 0;
-        }
-        else if ($ppm >= $minP && $ppm < $meanP) {
+        } else if ($ppm >= $minP && $ppm < $meanP) {
             $NPRendah   = ($meanP - $ppm)     /   ($meanP - $minP);
             $NPSedang   = ($ppm - $minP)    /   ($meanP - $minP);
             $NPTinggi   = 0;
-        }
-        else if ($ppm >= $meanP && $ppm < $maxP) {
+        } else if ($ppm >= $meanP && $ppm < $maxP) {
             $NPRendah   = 0;
             $NPSedang   = ($maxP - $ppm)    /   ($maxP - $meanP);
             $NPTinggi   = ($ppm - $meanP)    /   ($maxP - $meanP);
-        }
-        else if ($ppm >= $maxP) {
+        } else if ($ppm >= $maxP) {
             $NPRendah  = 0;
             $NPSedang   = 0;
             $NPTinggi   = 1;
@@ -263,15 +279,15 @@ class DataController extends Controller
 
         // -------------------- Inferensi
         // rule base
-        $rule1 = min($JTSedikit,$NPRendah); //KBaik
-        $rule2 = min($JTSedikit,$NPSedang); //KBaik
-        $rule3 = min($JTSedikit,$NPTinggi); //KBuruk
-        $rule4 = min($JTSedang,$NPRendah); //KBuruk
-        $rule5 = min($JTSedang,$NPSedang); //KBaik
-        $rule6 = min($JTSedang,$NPTinggi); //KBuruk
-        $rule7 = min($JTBanyak,$NPRendah); //KBuruk
-        $rule8 = min($JTBanyak,$NPSedang); //KBaik
-        $rule9 = min($JTBanyak,$NPTinggi); //KBaik
+        $rule1 = min($JTSedikit, $NPRendah); //KBaik
+        $rule2 = min($JTSedikit, $NPSedang); //KBaik
+        $rule3 = min($JTSedikit, $NPTinggi); //KBuruk
+        $rule4 = min($JTSedang, $NPRendah); //KBuruk
+        $rule5 = min($JTSedang, $NPSedang); //KBaik
+        $rule6 = min($JTSedang, $NPTinggi); //KBuruk
+        $rule7 = min($JTBanyak, $NPRendah); //KBuruk
+        $rule8 = min($JTBanyak, $NPSedang); //KBaik
+        $rule9 = min($JTBanyak, $NPTinggi); //KBaik
 
         //-------------------- Defuzifikasi
         $KBuruk = 100;
@@ -290,8 +306,7 @@ class DataController extends Controller
 
         if ($output <= $KTengah) {
             $Kondisi = 'buruk';
-        }
-        elseif($output > $KTengah){
+        } elseif ($output > $KTengah) {
             $Kondisi =  'baik';
         }
 
@@ -309,7 +324,6 @@ class DataController extends Controller
         Toast::title('Data Hidroponik Telah Diupdate')->warning()->autoDismiss(3);
 
         return to_route('data.index', $request->hidroponik_id);
-
     }
 
     /**

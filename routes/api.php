@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DataController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/kirim-data', function (Request $request) {
-    return $request->ppm.' asu '. $request->ph;
-});
+Route::get('/kirim-data', [DataController::class, 'store']);

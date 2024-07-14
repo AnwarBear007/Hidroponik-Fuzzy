@@ -42,7 +42,7 @@ Route::middleware('splade')->group(function () {
         Route::get('/dashboard', function () {
 
             $hidroponik = Hidroponik::where('user_id', Auth::id())->get();
-            
+
             $hidroponiks = [];
             $hidroponiks_id = [];
             foreach ($hidroponik as $hidroponik) {
@@ -52,16 +52,16 @@ Route::middleware('splade')->group(function () {
                 }
             }
             // dd($hidroponiks, $hidroponiks_id);
-            
-            $jumlahs =[];
-            $ppms =[];
+
+            $jumlahs = [];
+            $ppms = [];
             foreach ($hidroponiks_id as $hidroponiks_id) {
                 if ($hidroponiks_id) {
-                    $datas = Data::select('jumlah','ppm')->where('hidroponik_id', $hidroponiks_id)->orderBy('id', 'desc')->first();
+                    $datas = Data::select('jumlah', 'ppm')->where('hidroponik_id', $hidroponiks_id)->orderBy('id', 'desc')->first();
                     if ($datas) {
                         $jumlahs[]  = $datas->jumlah;
                         $ppms[]     = $datas->ppm;
-                    }else {
+                    } else {
                         $jumlahs[] = '';
                         $ppms[] = '';
                     }
@@ -69,7 +69,7 @@ Route::middleware('splade')->group(function () {
             }
             // dd($jumlahs, $ppms);
 
-            return view('dashboard',[
+            return view('dashboard', [
                 'hidroponiks'   => $hidroponiks,
                 'ppms'          => $ppms,
                 'jumlahs'       => $jumlahs
@@ -82,7 +82,9 @@ Route::middleware('splade')->group(function () {
     });
 
     Route::prefix('data')->name('data.')->group(function () {
-        Route::get('/{hidroponik}', [DataController::class, 'index'])->name('index');
+        // Route::get('/{hidroponik}', [DataController::class, 'index']);
+        Route::get('/', [DataController::class, 'index'])->name('index');
+
         Route::get('new/create', [DataController::class, 'create'])->name('create');
         Route::post('/', [DataController::class, 'store'])->name('store');
         // Route::post('/{data}', [DataController::class, 'show'])->name('show');
@@ -91,12 +93,12 @@ Route::middleware('splade')->group(function () {
         Route::delete('/{data}', [DataController::class, 'destroy'])->name('destroy');
     });
 
-    Route::prefix('fuzzy')->name('fuzzy.')->group(function (){
+    Route::prefix('fuzzy')->name('fuzzy.')->group(function () {
         Route::get('/{data}', [FuzzyController::class, 'show'])->name('show');
     });
 
     Route::resource('hidroponik', HidroponikController::class)->middleware('auth');
     Route::resource('ppm', PpmController::class)->middleware('auth');
 
-    require __DIR__.'/auth.php';
+    require __DIR__ . '/auth.php';
 });
