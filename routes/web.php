@@ -9,6 +9,7 @@ use App\Http\Controllers\DataController;
 use App\Http\Controllers\FuzzyController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HidroponikController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
