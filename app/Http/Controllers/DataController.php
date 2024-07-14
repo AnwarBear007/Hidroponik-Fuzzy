@@ -183,7 +183,7 @@ class DataController extends Controller
         // ]);
 
         Data::create([
-            'tanggal' => now()->format('Y-m-d'),
+            'tanggal' => now(),
             'hidroponik_id' => $hidroponik_id,
             'crop_id' => $ppm_id,
             // 'tanggal'       => $request->tanggal,

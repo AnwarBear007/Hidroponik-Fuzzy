@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('hidroponik_id')->nullable();
             $table->integer('crop_id');
-            $table->date('tanggal')->nullable();
+            $table->dateTime('tanggal')->nullable();
             $table->integer('jumlah')->nullable();
             $table->float('volume')->nullable();
             $table->float('larutan')->nullable();
