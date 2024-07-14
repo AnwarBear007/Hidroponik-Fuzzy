@@ -27,8 +27,8 @@ class DataController extends Controller
             'datas' => SpladeTable::for($datas)
                 ->column('tanggal', sortable:true)
                 ->column('jumlah', label:"Jumlah Tanaman")
-                ->column('volume', label:"Volume Air (Liter)")
-                ->column('larutan', label:"Larutan AB Mix (MiliLiter)")
+                    // ->column('volume', label:"Volume Air (Liter)")
+                    // ->column('larutan', label:"Larutan AB Mix (MiliLiter)")
                 ->column('ppm')
                 ->column('kondisi')
                 ->column('actions', exportAs: false)
@@ -63,6 +63,7 @@ class DataController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $hidroponik_id  = $request->input('hidroponik_id');
         $ppm_id         = $request->input('ppm_id');
         

@@ -12,7 +12,7 @@
                     <Link href="{{ route('data.create', ['hidroponik_id' => $hidroponik_id, 'ppm_id' => $ppm_id]) }}" class="px-4 py-2 bg-green-500 rounded text-white hover:bg-green-300 hover:text-black font-semibold">Tambah Data</Link>
                     <x-splade-table class="mt-4" :for="$datas" pagination-scroll="preserve">
                         <x-splade-cell actions as="$datas">
-                            <Link href="{{ route('data.edit', [$datas, 'hidroponik_id' => $datas->hidroponik->id, 'ppm_id' => $datas->hidroponik->ppm->id]) }}" class="px-3 py-2 bg-yellow-500 rounded text-white hover:bg-yellow-300 hover:text-black font-semibold"> Ubah </Link>
+                            <!-- <Link href="{{ route('data.edit', [$datas, 'hidroponik_id' => $datas->hidroponik->id, 'ppm_id' => $datas->hidroponik->ppm->id]) }}" class="px-3 py-2 bg-yellow-500 rounded text-white hover:bg-yellow-300 hover:text-black font-semibold"> Ubah </Link> -->
                             <Link href="{{ route('fuzzy.show', [$datas, 'hidroponik_id' => $datas->hidroponik->id, 'ppm_id' => $datas->hidroponik->ppm->id]) }}" class="mx-2 px-3 py-2 bg-blue-500 rounded text-white hover:bg-blue-300 hover:text-black font-semibold"> Show Fuzzy </Link>
                             <x-splade-form 
                                 action="{{ route('data.destroy', $datas) }}"
